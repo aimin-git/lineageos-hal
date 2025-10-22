@@ -1,0 +1,53 @@
+name: Build minimal audio HAL (aarch64)
+
+on:
+  workflow_dispatch:
+    inputs:
+      abi:
+        description: 'Target ABI (aarch64 or arm)'
+        required: false
+        default: 'aarch64'
+
+jobs:
+  build-hal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Download Android NDK r25b
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/android-ndk
+          key: ndk-r25b
+          restore-keys: ndk-r25b
+
+      - name: Fetch NDK
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $RUNNER_TEMP/android-ndk
+          cd $RUNNER_TEMP/android-ndk
+          curl -L -o ndk.zip https://github.com/android/ndk/releases/download/android-ndk-r25b/android-ndk-r25b-linux.zip
+          unzip ndk.zip
+
+      - name: Prepare build script
+        run: |
+          cp -r .github/scripts ./scripts
+
+      - name: Build for ${{ github.event.inputs.abi || 'aarch64' }}
+        env:
+          NDK_ROOT: $RUNNER_TEMP/android-ndk/android-ndk-r25b
+        run: |
+          chmod +x scripts/build-hal.sh
+          scripts/build-hal.sh ${{ github.event.inputs.abi || 'aarch64' }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio-hal-so
+          path: out/*.so

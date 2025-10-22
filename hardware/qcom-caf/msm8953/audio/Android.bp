@@ -1,0 +1,8 @@
+cc_library_shared {
+    name: "audio.primary.msm8953",
+    srcs: ["audio_hal.cpp"],
+    shared_libs: ["liblog"],
+    cflags: ["-fPIC", "-Wall"],
+    cppflags: ["-fno-exceptions", "-fno-rtti", "-std=gnu++17"],
+    vendor: true,
+}
