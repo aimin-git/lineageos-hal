@@ -57,7 +57,8 @@ jobs:
 
       - name: Build for ${{ github.event.inputs.abi || 'aarch64' }}
         env:
-          NDK_ROOT: $RUNNER_TEMP/android-ndk/android-ndk-r25b
+          # Use runner.temp expansion so the environment variable points to a real path
+          NDK_ROOT: ${{ runner.temp }}/android-ndk/android-ndk-r25b
         run: |
           chmod +x scripts/build-hal.sh
           scripts/build-hal.sh ${{ github.event.inputs.abi || 'aarch64' }}
