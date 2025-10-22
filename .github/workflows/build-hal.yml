@@ -1,6 +1,9 @@
 name: Build minimal audio HAL (aarch64)
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       abi:
