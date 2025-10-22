@@ -26,12 +26,25 @@ case "$ABI" in
     ;;
 esac
 
-CLANG="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${CLANG_TRIPLE}${API}-clang++"
-AR="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+NDK_BIN="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin"
+CLANG_CAND1="$NDK_BIN/${CLANG_TRIPLE}${API}-clang++"
+CLANG_CAND2="$NDK_BIN/${CLANG_TRIPLE}${API}-clang"
+CLANG_CAND3="$NDK_BIN/clang++"
+AR="$NDK_BIN/llvm-ar"
 
-if [ ! -x "$CLANG" ]; then
-  echo "Cannot find clang at $CLANG" >&2
+if [ -x "$CLANG_CAND1" ]; then
+  CLANG="$CLANG_CAND1"
+elif [ -x "$CLANG_CAND2" ]; then
+  CLANG="$CLANG_CAND2"
+elif [ -x "$CLANG_CAND3" ]; then
+  CLANG="$CLANG_CAND3"
+else
+  echo "Cannot find clang in NDK bin directory. Tried:" >&2
+  echo "  $CLANG_CAND1" >&2
+  echo "  $CLANG_CAND2" >&2
+  echo "  $CLANG_CAND3" >&2
   echo "NDK_ROOT=$NDK_ROOT" >&2
+  ls -la "$NDK_BIN" || true
   exit 3
 fi
 
